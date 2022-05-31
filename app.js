@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require("express");
 const bodyParser = require("body-parser"); 
 const ejs = require("ejs");
@@ -15,6 +16,16 @@ const app = express();
 app.use(express.static("public"));
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
+
+app.use(session({
+  secret: 'keyboard cat',
+  resave: false,
+  saveUninitialized: true,
+  cookie: {}
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 mongoose.connect("mongodb://localhost:27017/urbanDB", {useNewUrlParser: true});
 
@@ -60,7 +71,7 @@ userSchema.plugin(findOrCreate);
 
 const User = mongoose.model("User", userSchema);
 const Staff = mongoose.model("Staff", staffSchema);
-const Service = mongoose.model("Service". serviceSchema)
+const Service = mongoose.model("Service", serviceSchema)
 
 passport.use(User.createStrategy());
 
@@ -128,7 +139,7 @@ app.get('/auth/google/booking',
   passport.authenticate('google', { failureRedirect: '/login' }),
   function(req, res) {
     // Successful authentication, redirect home.
-    res.redirect('/secrets');
+    res.redirect('/booking');
   });
 
   app.get('/auth/facebook',
@@ -140,7 +151,7 @@ app.get('/auth/google/booking',
   passport.authenticate('facebook', { failureRedirect: '/login' }),
   function(req, res) {
     // Successful authentication, redirect home.
-    res.redirect('/secrets');
+    res.redirect('/booking');
   });
 
   app.get("/logout", function(req, res) {
