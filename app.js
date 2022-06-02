@@ -31,14 +31,13 @@ mongoose.connect("mongodb://localhost:27017/urbanDB", {useNewUrlParser: true});
 
 // Users
 const userSchema = new mongoose.Schema ({
-  username: {type: String, unique: true}, // values: email address, googleId, facebookId
-  password: String,
+  username: {type: String, required: true, unique: true}, // values: email address, googleId, facebookId
   firstName: String,
   lastName: String,
-  phoneNumber: String,
+  phone: String,
   email: String,
-  provider: String
-
+  provider: String,
+  password: {type: String, required: true}
 });
 
 //Staff 
@@ -64,7 +63,7 @@ function setPrice(num){
   return num*100;
 }
 
-//Plugins
+// Plugins //
 
 userSchema.plugin(passportLocalMongoose, {emailUnique: false});
 userSchema.plugin(findOrCreate);
@@ -85,7 +84,7 @@ passport.deserializeUser(function(id, done) {
   });
 });
 
-// Google Strategy
+// Google Strategy //
 passport.use(new GoogleStrategy({
   clientID: process.env.CLIENT_ID,
   clientSecret: process.env.CLIENT_SECRET,
@@ -104,7 +103,7 @@ function(accessToken, refreshToken, profile, cb) {
 }
 ));
 
-// Facebook Strategy
+// Facebook Strategy //
 passport.use(new FacebookStrategy({
   clientID: process.env.FACEBOOK_APP_ID,
   clientSecret: process.env.FACEBOOK_APP_SECRET,
@@ -116,7 +115,7 @@ function(accessToken, refreshToken, profile, cb) {
   User.findOrCreate(
     { username: profile.id },
     { 
-      provider: "google",
+      provider: "facebook",
       email: profile._json.email
     }, function (err, user) {
       return cb(err, user);
@@ -124,7 +123,7 @@ function(accessToken, refreshToken, profile, cb) {
 }
 ));
 
-// GETS
+//////// GETS ////////
 app.get("/", function(req, res){
   res.render("home");
 });
@@ -150,7 +149,7 @@ app.get('/auth/google/booking',
   app.get('/auth/facebook/booking',
   passport.authenticate('facebook', { failureRedirect: '/login' }),
   function(req, res) {
-    // Successful authentication, redirect home.
+    // Successful authentication, redirect to booking page.
     res.redirect('/booking');
   });
 
@@ -183,18 +182,27 @@ app.get("/register", function(req, res){
   res.render("register");
 });
 
-// POSTS
+/////// POSTS /////////
 
 app.post("/register", function(req, res){
 
-  User.register({username: req.body.username}, req.body.password, function(err, user){
+  User.register(new User({
+    username: req.body.username, 
+    firstName: req.body.firstName, 
+    lastName: req.body.lastName, 
+    email: req.body.email, 
+    phone: req.body.phone}), 
+    req.body.password, function(err, user){
 
     if (err) {
       console.log(err);
       res.redirect("/register");
     } else {
+
       passport.authenticate("local")(req, res, function(){
         res.redirect("/booking");
+
+
       })
     }
 
@@ -227,34 +235,31 @@ app.post("/login", function(req, res){
   })
 });
 
-// app.post("/submit", function(req, res) {
+app.post("/booking", function(req, res){
 
-//   const submittedSecret = req.body.secret;
+  if (req.isAuthenticated()){
 
-//   console.log(req.user);
+    User.find({"secret": {$ne: null}}, function(err, foundUsers) {
 
-//   User.findById(req.user.id, function(err, foundUser) {
-    
-//     if(err) {
+      if (err) {
+  
+        console.log(err);
+  
+      } else {
+  
+        if (foundUsers) {
+  
+          res.render("secrets", {usersWithSecrets: foundUsers});
+  
+        }
+      }
+})
+  }})
 
-//       console.log(err);
-
-//     } else {
-
-//       if (foundUser) {
-
-//           foundUser.secret = submittedSecret;
-
-//           foundUser.save(function(){
-
-//             res.redirect("/booking");
-
-//           });
-//       }
-//     }
-//   })
-
-// });
+  app.post('/logout', function(req, res){
+    req.logout();
+    res.redirect('/');
+  });
 
 app.listen(3000, function(){
   console.log("Server started on port 3000");
