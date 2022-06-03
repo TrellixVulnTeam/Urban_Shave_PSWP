@@ -3,6 +3,11 @@ html {
   position: relative;
 }
 
+#logo {
+  height: 45%;
+  width: 45%;
+}
+
 .bookNow {
   border-color: #000;
   border-width: 100px;

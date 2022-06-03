@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const { render } = require("express/lib/response");
 const mongoose = require("mongoose");
+const {authUser} = require("./userAuth");
 const session = require('express-session');
 const passport = require("passport");
 const passportLocalMongoose = require("passport-local-mongoose");
@@ -31,13 +32,13 @@ mongoose.connect("mongodb://localhost:27017/urbanDB", {useNewUrlParser: true});
 
 // Users
 const userSchema = new mongoose.Schema ({
-  username: {type: String, required: true, unique: true}, // values: email address, googleId, facebookId
+  username: {type: String, required: true, unique: true, trim: true}, // values: email address, googleId, facebookId
   firstName: String,
   lastName: String,
   phone: String,
   email: String,
   provider: String,
-  password: {type: String, required: true}
+  password: {type: String, required: true},
 });
 
 //Staff 
@@ -182,6 +183,10 @@ app.get("/register", function(req, res){
   res.render("register");
 });
 
+app.get("/admin", authUser, function(req, res){
+  res.render("admin");
+})
+
 /////// POSTS /////////
 
 app.post("/register", function(req, res){
@@ -201,7 +206,6 @@ app.post("/register", function(req, res){
 
       passport.authenticate("local")(req, res, function(){
         res.redirect("/booking");
-
 
       })
     }
