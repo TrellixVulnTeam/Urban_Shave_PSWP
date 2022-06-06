@@ -39,14 +39,18 @@ const userSchema = new mongoose.Schema ({
   email: String,
   provider: String,
   password: {type: String, required: true},
+  role: {type: String, enum: "user"}
 });
+
+// make defualt role for users then create admin inside mongo and then a function to find and validate the admin.
 
 //Staff 
 const staffSchema = new mongoose.Schema ({
     email: String,
     password: String,
     firstName: String,
-  lastName: String
+    lastName: String,
+    role: {type: String, enum: "staff"}
 });
 
 //Services offered
@@ -239,26 +243,27 @@ app.post("/login", function(req, res){
   })
 });
 
-app.post("/booking", function(req, res){
+// app.post("/booking", function(req, res){
 
-  if (req.isAuthenticated()){
+//   if (req.isAuthenticated()){
 
-    User.find({"secret": {$ne: null}}, function(err, foundUsers) {
+//     User.find({"secret": {$ne: null}}, function(err, foundUsers) {
 
-      if (err) {
+//       if (err) {
   
-        console.log(err);
+//         console.log(err);
   
-      } else {
+//       } else {
   
-        if (foundUsers) {
+//         if (foundUsers) {
   
-          res.render("secrets", {usersWithSecrets: foundUsers});
+//           res.render("secrets", {usersWithSecrets: foundUsers});
   
-        }
-      }
-})
-  }})
+//         }
+//       }
+// })
+//   }})
+
 
   app.post('/logout', function(req, res){
     req.logout();
