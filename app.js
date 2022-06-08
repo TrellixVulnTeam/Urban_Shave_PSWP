@@ -4,7 +4,6 @@ const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const { render } = require("express/lib/response");
 const mongoose = require("mongoose");
-const {authUser} = require("./userAuth");
 const session = require('express-session');
 const passport = require("passport");
 const passportLocalMongoose = require("passport-local-mongoose");
@@ -50,23 +49,26 @@ const staffSchema = new mongoose.Schema ({
     password: String,
     firstName: String,
     lastName: String,
-    role: {type: String, enum: "staff"}
+    role: {type: String, enum: ["staff", "employeeAdmin"]}
 });
 
 //Services offered
 const serviceSchema = new mongoose.Schema ({
   name: String,
   description: String,
-  price: {type: Number, get: getPrice, set: setPrice }
+  duration: String,
+  price: Number
 });
 
-function getPrice(num){
-  return (num/100).toFixed(2);
-}
-
-function setPrice(num){
-  return num*100;
-}
+const orderSchema = new mongoose.Schema ({
+  firstName: String,
+  lastName: String,
+  phone: String,
+  email: String,
+  serviceName: String,
+  description: String,
+  price: Number
+});
 
 // Plugins //
 
@@ -176,7 +178,18 @@ app.get("/contact", function(req, res){
 });
 
 app.get("/booking", function(req, res){
-  res.render("booking");
+
+  Service.find({"name" : {$ne: null}} , function(err, foundServices){
+
+    if(err){
+      console.log(err)
+    } else {
+      if (foundServices) {
+        res.render("booking", {servicesDisplayed: foundServices});
+      }
+    }
+  })
+  
 });
 
 app.get("/login", function(req, res){
@@ -187,9 +200,14 @@ app.get("/register", function(req, res){
   res.render("register");
 });
 
-app.get("/admin", authUser, function(req, res){
+app.get("/admin", function(req, res){
+
+  if (req.isAuthenticated() && req.user.role === "dbAdmin") {
   res.render("admin");
-})
+  } else {
+    res.redirect("/home");
+  }
+});
 
 /////// POSTS /////////
 

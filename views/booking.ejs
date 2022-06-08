@@ -13,13 +13,14 @@
 
       <h2>Services</h2>
 
-      <ul>
-        <li>Haircut</li>
-        <li>Bread</li>
-        <li>Wax</li>
-        <li>Style</li>
-        <li>Color</li>
-      </ul>
+     <% servicesDisplayed.forEach(function(service){ %>
+
+      <h3><%= service.name %></h3>
+      <p><%= service.description %></p>
+      <p><%= service.duration %></p>
+      <p>$<%= service.price %>.00</p>
+
+    <% }); %>
 
   </div>
 
@@ -76,10 +77,6 @@
 
 
 </div>
-
-
-
-
 
 
 <%- include("partials/footer"); -%>
