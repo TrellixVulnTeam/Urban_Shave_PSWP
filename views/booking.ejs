@@ -13,32 +13,20 @@
 
       <h2>Services</h2>
 
-     <% servicesDisplayed.forEach(function(service){ %>
-
-      <h3><%= service.name %></h3>
-      <p><%= service.description %></p>
-      <p><%= service.duration %></p>
-      <p>$<%= service.price %>.00</p>
-
-    <% }); %>
-
+      <ul>
+        <li>Haircut</li>
+        <li>Beard</li>
+        <li>Wax</li>
+      </ul>
   </div>
 
   <div class="staff">
 
-    <h2>Staff Members - add with forEach</h2>
+    <h2>Stylists</h2>
 
-    <ul>
-      <li>Eric C</li>
-      <li>David O</li>
-      <li>Frank S</li>
-      <li>Peyton M</li>
-      <li>Chris L</li>
-      <li>Shawn W</li>
-      <li>Devon H</li>
-      <li>Jessica F</li>
-      <li>Gretchen K</li>
-    </ul>
+    <% staffDisplayed.forEach(function(staff){ %>
+      <p><%= staff.firstName %></p>
+    <% }); %>
 
 </div>
 
@@ -53,25 +41,40 @@
     <option value="family">Family Member</option>
   </select>
 
-  <h2>Who would you like to book with? add with foreach inside a dropdown</h2>
+  <h2>Who would you like to book with?</h2>
 
   <select name="bookFor" id="staffBooked">
-    <option value="Eric">Eric</option>
-    <option value="David">David</option>
-    <option value="Chris">Chris</option>
+    <% staffDisplayed.forEach(function(staff){ %>
+    <option><%= staff.firstName %></option>
+    <% }); %>
   </select>
 
   <div class="ordered">
 
-    <h3>Haircut add options and time lengths</h3>
+    <h3>Haircut</h3>
+    <p>Our experts stylists will consult and deliver a precision haircut.</p>
+    <p>20min - 30min</p>
+    <p>$21.00</p>
 
     <h3>Beard</h3>
+    <p>Let us style and tame that unruly beard.</p>
+    <p>15min - 25min</p>
+    <p>$15.00</p>
 
     <h3>Wax</h3>
+    <p>Got unwanted hair? We can take care of that.</p>
+    <p>10min - 20min</p>
+    <p>$10.00</p>
 
     <h3>Style</h3>
+    <p>Let's prefect your unique look or help give you a new one</p>
+    <p>10min - 15min</p>
+    <p>$10.00</p>
 
     <h3>Color</h3>
+    <p>Tackle unwanted gray hair.</p>
+    <p>20min - 30min</p>
+    <p>$15.00</p>
   </div>
 
 

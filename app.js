@@ -36,8 +36,8 @@ const userSchema = new mongoose.Schema ({
   lastName: String,
   phone: String,
   email: String,
+  password: String,
   provider: String,
-  password: {type: String, required: true},
   role: {type: String, enum: "user"}
 });
 
@@ -49,7 +49,7 @@ const staffSchema = new mongoose.Schema ({
     password: String,
     firstName: String,
     lastName: String,
-    role: {type: String, enum: ["staff", "employeeAdmin"]}
+    role: {type: String, enum: "staff"}
 });
 
 //Services offered
@@ -165,6 +165,21 @@ app.get('/auth/google/booking',
     res.redirect("/");
   });
 
+  app.get("/stylists", function(req, res){
+
+    Staff.find({"firstName": {$ne: null}} , function(err, foundStaff){
+      if(err){
+        console.log(err)
+      } else {
+        if (foundStaff) {
+          res.render("stylists",  {staffDisplayed: foundStaff});
+        }
+      }
+    })
+    
+  });
+
+
 app.get("/services", function(req, res){
   res.render("services");
 });
@@ -179,17 +194,15 @@ app.get("/contact", function(req, res){
 
 app.get("/booking", function(req, res){
 
-  Service.find({"name" : {$ne: null}} , function(err, foundServices){
-
+  Staff.find({"firstName": {$ne: null}} , function(err, foundStaff){
     if(err){
       console.log(err)
     } else {
-      if (foundServices) {
-        res.render("booking", {servicesDisplayed: foundServices});
+      if (foundStaff) {
+        res.render("booking",  {staffDisplayed: foundStaff});
       }
     }
   })
-  
 });
 
 app.get("/login", function(req, res){
@@ -202,11 +215,11 @@ app.get("/register", function(req, res){
 
 app.get("/admin", function(req, res){
 
-  if (req.isAuthenticated() && req.user.role === "dbAdmin") {
-  res.render("admin");
-  } else {
-    res.redirect("/home");
-  }
+  // if (req.isAuthenticated() && req.user.role === "dbAdmin") {
+  // res.render("admin");
+  // } else {
+  //   res.redirect("/home");
+  // }
 });
 
 /////// POSTS /////////
@@ -218,8 +231,8 @@ app.post("/register", function(req, res){
     firstName: req.body.firstName, 
     lastName: req.body.lastName, 
     email: req.body.email, 
-    phone: req.body.phone}), 
-    req.body.password, function(err, user){
+    phone: req.body.phone}), req.body.password,
+     function(err, user){
 
     if (err) {
       console.log(err);
@@ -231,9 +244,7 @@ app.post("/register", function(req, res){
 
       })
     }
-
   })
-  
 });
 
 app.post("/login", function(req, res){

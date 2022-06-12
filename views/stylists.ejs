@@ -1,0 +1,11 @@
+<%- include("partials/header"); -%>
+
+<h1>Meet Our Stylists</h1>
+
+    <% staffDisplayed.forEach(function(staff){ %>
+      <p><%= staff.firstName %></p>
+    <% }); %>
+
+
+  
+<%- include("partials/footer"); -%>
