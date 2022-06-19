@@ -38,7 +38,7 @@ const userSchema = new mongoose.Schema ({
   email: String,
   password: String,
   provider: String,
-  role: {type: String, enum: "user"}
+  role: {type: String, enum: ["user", "staff"]}
 });
 
 // make defualt role for users then create admin inside mongo and then a function to find and validate the admin.
@@ -131,7 +131,7 @@ function(accessToken, refreshToken, profile, cb) {
 ));
 
 //////// GETS ////////
-app.get("/", function(req, res){
+app.get("/home", function(req, res){
   res.render("home");
 });
 
@@ -213,6 +213,24 @@ app.get("/register", function(req, res){
   res.render("register");
 });
 
+app.get("/staffRegister", function(req, res){
+  res.render("staffRegister");
+});
+
+app.get("/staffLogin", function(req, res){
+  res.render("staffLogin");
+});
+
+app.get("/staffHome", function(req, res){
+  if(req.isAuthenticated() && req.user.role === "staff") {
+    res.render("staffHome");
+  } else {
+    res.redirect("/home");
+  }
+  
+ 
+});
+
 app.get("/admin", function(req, res){
 
   // if (req.isAuthenticated() && req.user.role === "dbAdmin") {
@@ -247,6 +265,27 @@ app.post("/register", function(req, res){
   })
 });
 
+app.post("/staffRegister", function(req, res){
+
+  Staff.register(new Staff({
+    username: req.body.username, 
+    firstName: req.body.firstName, 
+    lastName: req.body.lastName, 
+    email: req.body.email, 
+    phone: req.body.phone,
+    role: "staff"}), req.body.password,
+     function(err, staff){
+
+    if (err) {
+      console.log(err);
+      res.redirect("/staffRegister");
+    } else {
+      
+        res.redirect("/staffHome");
+    }
+  })
+});
+
 app.post("/login", function(req, res){
 
   const user = new User({
@@ -257,20 +296,49 @@ app.post("/login", function(req, res){
 
   });
 
+
   req.login(user, function(err){
 
     if (err) {
       console.log(err);
+
+    } if (req.user.role === "staff") {
+
+      passport.authenticate("local");
+
+      res.redirect("/staffHome");
 
     } else {
 
       passport.authenticate("local");
 
       res.redirect("/booking");
-
     }
   })
 });
+
+// app.post("/staffLogin", function(req, res){
+
+//   const staff = new Staff({
+
+//     username: req.body.username,
+
+//     password: req.body.password
+
+//   });
+
+//   req.login(staff, function(err){
+
+//     if (err) {
+//       console.log(err);
+
+//     } else {
+
+//       res.redirect("/staffHome");
+
+//     }
+//   })
+// });
 
 // app.post("/booking", function(req, res){
 
